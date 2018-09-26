@@ -1,0 +1,96 @@
+﻿@using KendoUIMVC5.Models
+
+@{
+    ViewBag.Title = "Filtering";
+}
+
+<div class="schedulerJob" style="padding-top:8px; padding-bottom: 8px; overflow: hidden;">
+    @(Html.Kendo().Scheduler<TaskViewModel>()
+            .Name("schedulerJob")
+            .Date(DateTime.Today)
+            .StartTime(0, 0, 0)
+            .WorkDayStart(7, 0, 0)
+            .WorkDayEnd(18, 0, 0)
+            .MinorTickCount(2)
+            .Height(575)
+            .AutoBind(true)
+            .Views(views =>
+            {
+                views.TimelineView(v => v.Selected(true).ColumnWidth(45).DateHeaderTemplate("<span class='k-link k-nav-day'>#=kendo.toString(date, 'ddd dd/M')#</span>"));
+            })            
+            .Group(group => group.Resources("Techs").Orientation(SchedulerGroupOrientation.Vertical))
+            .Timezone("Etc/UTC")
+            .CurrentTimeMarker(true)
+            .Resources(resource =>
+            {
+                resource.Add(m => m.TechName)
+                    .Title("Techs")
+                    .Name("Techs")
+                    .DataTextField("TechName")
+                    .DataValueField("emm_code")
+                    .DataColorField("Color")
+                    .DataSource(d => d.Read("Techs", "JOBS"));
+            })
+            .DataSource(d => d
+                .Model(m =>
+                {
+                    m.Id(f => f.emm_code);
+                })
+                .ServerOperation(true)
+                .Read(r => r.Action("JobSchedule_Read", "JOBS"))
+                .Update("JobSchedule_Update", "JOBS")
+            )            
+    )
+</div>
+
+@*@(Html.Kendo().Grid<Student>()
+        .Name("grid")
+        .Columns(columns =>
+        {
+            columns.Bound(x => x.FirstName).Locked(true).Width(500);
+            columns.Bound(x => x.LastName).Width(500);
+            columns.Bound(x => x.Birthday).Format("{0: MM/dd/yyyy}").Width(500);
+
+            columns.Bound(x => x.LastName).Width(500);
+            columns.Bound(x => x.Birthday).Format("{0: MM/dd/yyyy}").Width(500).ClientTemplate("<div class='leftCol'>#= Birthday #</div>"); ;
+            columns.Command(x => x.Edit()).Width(500);
+        })
+        .HtmlAttributes(new { style = "height: 550px;" })
+        .Scrollable()
+        .ToolBar(x=> x.Create())
+        .Editable()
+        .Pageable(pageable => pageable
+            .Refresh(true)
+            .PageSizes(true)
+            .ButtonCount(5))
+        .DataSource(dataSource => dataSource
+
+            .Ajax()
+            .Read(read => read.Action("GetStudents", "Home"))
+            .Update(x=> x.Action("EditStudent","Home"))
+            .Create(x => x.Action("EditStudent", "Home"))
+
+            .PageSize(20)
+            .Model(x => x.Id(y=> y.Id))
+
+        )
+)
+
+<script>
+    $("#grid").on("click", "tbody tr[role='row'] td", function (e) {
+        var grid = $("#grid").data("kendoGrid");
+        var isLockedTable = $(e.target).parents('.k-grid-content-locked').length;
+        var cellIndex = $(e.target).index();
+        var table;
+
+        if (isLockedTable) {
+            table = grid.wrapper.find('.k-grid-header .k-grid-header-locked table');
+        } else {
+            table = grid.wrapper.find('.k-grid-header .k-grid-header-wrap table');
+        }
+
+        var field = table.find('thead tr:eq(0) th:eq(' + cellIndex + ')').attr('data-field');
+
+        alert(field);
+    });
+</script>*@
